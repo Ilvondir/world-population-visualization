@@ -26,7 +26,7 @@ dashboardPage(
       type = "pills",
       
       tabPanel(
-        title = "Country view"
+        title = "Total view"
       )
     )
   )
