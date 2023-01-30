@@ -4,6 +4,7 @@ library(shinydashboard)
 
 # Frame ----
 dashboardPage(
+  
   skin = "purple",
   
   ## Header ----
@@ -20,7 +21,12 @@ dashboardPage(
   
   ## Content ----
   dashboardBody(
+    ### CSS head tag ----
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+    ),
     
+    ### Tabset panel ----
     tabsetPanel(
       id = "panel",
       type = "pills",
