@@ -9,12 +9,12 @@ dashboardPage(
   ## Header ----
   dashboardHeader(
     title = "World Population",
-    titleWidth = 200
+    titleWidth = 300
   ),
   
   ## Sidebar ----
   dashboardSidebar(
-    width = 200,
+    width = 300,
     h1("Select your data")
   ),
   
@@ -23,6 +23,7 @@ dashboardPage(
     
     tabsetPanel(
       id = "panel",
+      type = "pills",
       
       tabPanel(
         title = "Country view"
