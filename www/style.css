@@ -1,0 +1,9 @@
+.tabbable > .nav > li.active > a {
+  background-color: #555299;
+  border-top-color: #605CA8;
+}
+
+.tabbable > .nav > li.active > a:hover {
+  background-color: #555299;
+  border-top-color: #605CA8;
+}
