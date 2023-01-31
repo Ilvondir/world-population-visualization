@@ -9,5 +9,6 @@ data <- data %>%
 
 # Server function ----
 function(input, output) {
+  ## UI sidebar elements ----
   
 }

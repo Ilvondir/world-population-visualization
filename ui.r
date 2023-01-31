@@ -16,7 +16,7 @@ dashboardPage(
   ## Sidebar ----
   dashboardSidebar(
     width = 300,
-    h1("Select your data")
+    h2("Select your data")
   ),
   
   ## Content ----
