@@ -1,6 +1,7 @@
 # Libraries ----
 library(shiny)
 library(shinydashboard)
+library(plotly)
 
 # Frame ----
 dashboardPage(
@@ -34,7 +35,8 @@ dashboardPage(
       type = "pills",
       
       tabPanel(
-        title = "Total view"
+        title = "Total view",
+        plotlyOutput("totalViewPlot")
       )
     )
   )

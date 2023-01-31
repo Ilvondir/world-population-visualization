@@ -1,5 +1,6 @@
 # Libraries ----
 library(tidyverse)
+library(plotly)
 
 # Data initialization ----
 data <- read.csv("datasets/dataset.csv")
@@ -13,15 +14,24 @@ function(input, output) {
   ## Data to first plot ----
   firstPlotData <- reactive({
     plotData <- data %>%
-      select(c(Country, Year, Total)) %>%
+      select(c("Country", "Year", "Total")) %>%
       filter(Country %in% input$countrySelect & Year>=input$date[1] & Year<=input$date[2]) %>%
-      group_by(Country) %>%
+      group_by(Country, Year) %>%
       summarise_all(sum) %>%
-      arrange(Date)
+      arrange(Year)
   })
   
   ## Total view plot ----
-  
+  output$totalViewPlot <- renderPlotly({
+    req(input$countrySelect)
+    req(input$date)
+    
+    plt <- plot_ly(data=firstPlotData(), x=~Year, color=~Country)
+    
+    plt <- plt %>% add_trace(y=~Total, type="scatter", mode="lines+markers", showlegend=F)
+    
+    highlight(plt)
+  })
   ## UI sidebar elements ----
   
   ### Country select ----
