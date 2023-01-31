@@ -1,6 +1,7 @@
 # Libraries ----
 library(shiny)
 library(shinydashboard)
+library(plotly)
 
 # Frame ----
 dashboardPage(
@@ -16,7 +17,9 @@ dashboardPage(
   ## Sidebar ----
   dashboardSidebar(
     width = 300,
-    h1("Select your data")
+    h2("Select your data"),
+    
+    uiOutput("sidebar")
   ),
   
   ## Content ----
@@ -32,7 +35,8 @@ dashboardPage(
       type = "pills",
       
       tabPanel(
-        title = "Total view"
+        title = "Total view",
+        plotlyOutput("totalViewPlot")
       )
     )
   )

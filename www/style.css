@@ -7,3 +7,13 @@
   background-color: #555299;
   border-top-color: #605CA8;
 }
+
+#sidebarCollapsed > section.sidebar {
+  padding: 2vw;
+  box-sizing: border-box;
+}
+
+#sidebarCollapsed > section.sidebar > h2 {
+  margin: 0.5vw 0 1vw 0;
+  font-weight: 500;
+}
