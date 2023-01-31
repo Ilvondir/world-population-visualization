@@ -11,4 +11,39 @@ data <- data %>%
 function(input, output) {
   ## UI sidebar elements ----
   
+  ### Country select ----
+  output$countrySelect <- renderUI({
+    regions <- data %>% select("Country") %>% unique()
+    selectInput(
+      inputId = "countrySelect",
+      label = "Select regions:",
+      choices = regions,
+      multiple = T,
+      selected = "Poland"
+    )
+  })
+  
+  ### Date range ----
+  output$date <- renderUI({
+    minDate <- data %>% select("Year") %>% min()
+    maxDate <- data %>% select("Year") %>% max()
+    dateRangeInput(
+      inputId = "date",
+      label = "Select years:",
+      startview = "year",
+      start = as.Date(paste0(minDate,"/01/01/")),
+      end = as.Date(paste0(maxDate,"/01/01/")),
+      format = "yyyy"
+    )
+  })
+  
+  ## Sidebar render ----
+  output$sidebar <- renderUI({
+    if (input$panel == "Total view") {
+      div(
+        uiOutput("countrySelect"),
+        uiOutput("date")
+      )
+    }
+  })
 }

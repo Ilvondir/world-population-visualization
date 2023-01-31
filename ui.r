@@ -16,7 +16,9 @@ dashboardPage(
   ## Sidebar ----
   dashboardSidebar(
     width = 300,
-    h2("Select your data")
+    h2("Select your data"),
+    
+    uiOutput("sidebar")
   ),
   
   ## Content ----
