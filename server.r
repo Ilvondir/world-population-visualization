@@ -9,6 +9,19 @@ data <- data %>%
 
 # Server function ----
 function(input, output) {
+  
+  ## Data to first plot ----
+  firstPlotData <- reactive({
+    plotData <- data %>%
+      select(c(Country, Year, Total)) %>%
+      filter(Country %in% input$countrySelect & Year>=input$date[1] & Year<=input$date[2]) %>%
+      group_by(Country) %>%
+      summarise_all(sum) %>%
+      arrange(Date)
+  })
+  
+  ## Total view plot ----
+  
   ## UI sidebar elements ----
   
   ### Country select ----
