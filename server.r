@@ -33,7 +33,7 @@ function(input, output) {
   firstPlotData <- reactive({
     plotData <- data %>%
       select(c("Country", "Year", "Total")) %>%
-      filter(Country %in% input$countrySelect & Year>=as.numeric(Year(input$date[1])) & Year<=as.numeric(Year(input$date[2]))) %>%
+      filter(Country %in% input$countrySelect & Year>=years()[1] & Year<=years()[2]) %>%
       group_by(Country, Year) %>%
       summarise_all(sum) %>%
       arrange(Year)
@@ -49,13 +49,22 @@ function(input, output) {
     plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year<=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}")
     
     if (input$forecastCheckbox == T) {
-      plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year>=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6)
+      plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year>=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra>Forecast</extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6)
     }
     
     plt <- plt %>% layout(plt, title="", xaxis=x, yaxis=y)
     
     highlight(plt)
   })
+  
+  ## Functions ----
+  
+  ### Years to first plot ----
+  years <- eventReactive(input$dateButton, {
+    req(input$date)
+    as.numeric(Year(input$date))
+  }, ignoreNULL = F)
+  
   ## UI sidebar elements ----
   
   ### Country select ----
@@ -85,6 +94,15 @@ function(input, output) {
     )
   })
   
+  ### Date button ----
+  output$dateButton <- renderUI({
+    actionButton(
+      inputId = "dateButton",
+      icon = icon("calendar", lib = "glyphicon"),
+      label = "Update plot"
+    )
+  })
+  
   ### Forecast checkbox ----
   output$forecastCheckbox <- renderUI({
     checkboxInput(
@@ -100,6 +118,7 @@ function(input, output) {
       div(
         uiOutput("countrySelect"),
         uiOutput("date"),
+        uiOutput("dateButton"),
         uiOutput("forecastCheckbox")
       )
     }
