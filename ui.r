@@ -46,7 +46,8 @@ dashboardPage(
       ),
       
       tabPanel(
-        title = "Age group view"
+        title = "Age group view",
+        plotlyOutput("ageGroupPlot")
       )
     )
   )

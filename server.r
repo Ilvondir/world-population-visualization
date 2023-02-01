@@ -8,6 +8,9 @@ data <- read.csv("datasets/dataset.csv")
 data <- data %>%
   select(c("Location", "Time", "AgeGrp", "PopMale", "PopFemale", "PopTotal")) %>%
   set_names(c("Country", "Year", "Group", "Males", "Females", "Total"))
+data$Males <- as.numeric(data$Males * 1000)
+data$Females <- as.numeric(data$Females * 1000)
+data$Total <- as.numeric(data$Total * 1000)
 
 # Plots layout ----
 font <- list(
@@ -28,8 +31,8 @@ y <- list(
 
 # Server function ----
 function(input, output) {
-  
-  ## Total view data ----
+  ## Data ----
+  ### Total view data ----
   totalViewData <- reactive({
     plotData <- data %>%
       select(c("Country", "Year", "Total")) %>%
@@ -39,7 +42,7 @@ function(input, output) {
       arrange(Year)
   })
   
-  ## Gender view data ----
+  ### Gender view data ----
   genderViewData <- reactive({
     secondPlotData <- data %>%
       select(c("Country", "Year", "Males", "Females")) %>%
@@ -49,7 +52,15 @@ function(input, output) {
       arrange(Year)
   })
   
-  ## Total view plot ----
+  ### Age group view data ----
+  ageGroupViewData <- reactive({
+    secondPlotData <- data %>%
+      select(c("Country", "Year", "Group", "Total")) %>%
+      filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
+  })
+  
+  ## Plots ----
+  ### Total view plot ----
   output$totalViewPlot <- renderPlotly({
     req(input$countrySelect)
     req(input$date)
@@ -83,7 +94,7 @@ function(input, output) {
     highlight(plt)
   })
   
-  ## Gender view plot ----
+  ### Gender view plot ----
   output$genderViewPlot <- renderPlotly({
     req(input$singleCountrySelect)
     req(input$date)
@@ -92,7 +103,8 @@ function(input, output) {
     
     plt <- plt %>% add_trace(data=genderViewData() %>% 
                                filter(Year<=2022), 
-                             y=~Males, type="scatter",
+                             y=~Males, 
+                             type="scatter",
                              mode="lines+markers",
                              hovertemplate="<extra></extra><b>Males</b>\nYear: %{x}\nPopulation: %{y}",
                              name="Males", 
@@ -142,9 +154,42 @@ function(input, output) {
     highlight(plt)
   })
   
+  ### Age group plot ----
+  output$ageGroupPlot <- renderPlotly({
+    req(input$singleCountrySelect)
+    req(input$singleDate)
+    
+    xform <- list(
+      categoryorder = "array",
+      categoryarray = ageGroupViewData()[1:21, "Group"],
+      title = "Age group",
+      titlefont = font
+    )
+    
+    plot <- plot_ly(data=ageGroupViewData(), 
+                    x=~Group)
+    
+    plot <- plot %>% add_bars(y=~Total,
+                              hovertemplate=paste0(
+                                input$singleCountrySelect,
+                                "- ",
+                                input$singleDate,
+                                "\nGroup: %{x}",
+                                "\nPopulation: %{y}",
+                                "<extra></extra>"
+                              ))
+    
+    plot <- plot %>% layout(plot, 
+                            title="",
+                            xaxis=xform, 
+                            yaxis=y)
+      
+    highlight(plot)
+  })
+  
   ## Functions ----
   
-  ### Years to first plot ----
+  ### Years to first & second plot ----
   years <- eventReactive(input$dateButton, {
     req(input$date)
     as.numeric(Year(input$date))
