@@ -48,7 +48,9 @@ function(input, output) {
     
     plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year<=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}")
     
-    plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year>2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6)
+    if (input$forecastCheckbox == T) {
+      plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year>2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6)
+    }
     
     plt <- plt %>% layout(plt, title=list(text="Population by regions", font = font), xaxis=x, yaxis=y)
     
@@ -82,12 +84,22 @@ function(input, output) {
     )
   })
   
+  ### Forecast checkbox ----
+  output$forecastCheckbox <- renderUI({
+    checkboxInput(
+      inputId = "forecastCheckbox",
+      label = "Show forecast (max to 2100)",
+      value = F
+    )
+  })
+  
   ## Sidebar render ----
   output$sidebar <- renderUI({
     if (input$panel == "Total view") {
       div(
         uiOutput("countrySelect"),
-        uiOutput("date")
+        uiOutput("date"),
+        uiOutput("forecastCheckbox")
       )
     }
   })
