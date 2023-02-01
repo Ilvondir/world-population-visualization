@@ -17,3 +17,7 @@
   margin: 0.5vw 0 1vw 0;
   font-weight: 500;
 }
+
+#sidebarCollapsed section.sidebar div.checkbox span {
+  font-weight: 700;
+}
