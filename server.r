@@ -29,11 +29,21 @@ y <- list(
 # Server function ----
 function(input, output) {
   
-  ## Data to first plot ----
-  firstPlotData <- reactive({
+  ## Total view data ----
+  totalViewData <- reactive({
     plotData <- data %>%
       select(c("Country", "Year", "Total")) %>%
       filter(Country %in% input$countrySelect & Year>=years()[1] & Year<=years()[2]) %>%
+      group_by(Country, Year) %>%
+      summarise_all(sum) %>%
+      arrange(Year)
+  })
+  
+  ## Gender view data ----
+  genderViewData <- reactive({
+    secondPlotData <- data %>%
+      select(c("Country", "Year", "Males", "Females")) %>%
+      filter(Country %in% input$singleCountrySelect & Year>=years()[1] & Year<=years()[2]) %>%
       group_by(Country, Year) %>%
       summarise_all(sum) %>%
       arrange(Year)
@@ -44,12 +54,36 @@ function(input, output) {
     req(input$countrySelect)
     req(input$date)
     
-    plt <- plot_ly(data=firstPlotData(), x=~Year, color=~Country, text=~Country)
+    plt <- plot_ly(data=totalViewData(), x=~Year, color=~Country, text=~Country)
     
-    plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year<=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}")
+    plt <- plt %>% add_trace(data=totalViewData() %>% filter(Year<=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", legendgroup=~Country)
     
     if (input$forecastCheckbox == T) {
-      plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year>=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra>Forecast</extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6)
+      plt <- plt %>% add_trace(data=totalViewData() %>% filter(Year>=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra>Forecast</extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6, legendgroup=~Country)
+    }
+    
+    plt <- plt %>% layout(plt, title="", xaxis=x, yaxis=y)
+    
+    highlight(plt)
+  })
+  
+  ## Gender view plot ----
+  output$genderViewPlot <- renderPlotly({
+    req(input$singleCountrySelect)
+    req(input$date)
+    
+    plt <- plot_ly(data=genderViewData(), x=~Year)
+    
+    plt <- plt %>% add_trace(data=genderViewData() %>% filter(Year<=2022), y=~Males, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>Males</b>\nYear: %{x}\nPopulation: %{y}", name="Males", line=list(color="steelblue"), marker=list(color="steelblue"), legendgroup="males")
+    
+    if (input$forecastCheckbox == T) {
+      plt <- plt %>% add_trace(data=genderViewData() %>% filter(Year>=2022), y=~Males, type="scatter", mode="lines+markers", hovertemplate="<extra>Forecast</extra><b>Males</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6, line=list(color="steelblue"), marker=list(color="steelblue"), legendgroup="males")
+    }
+    
+    plt <- plt %>% add_trace(data=genderViewData() %>% filter(Year<=2022), y=~Females, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>Females</b>\nYear: %{x}\nPopulation: %{y}", name="Females", line=list(color="pink"), marker=list(color="pink"), legendgroup="females")
+    
+    if (input$forecastCheckbox == T) {
+      plt <- plt %>% add_trace(data=genderViewData() %>% filter(Year>=2022), y=~Females, type="scatter", mode="lines+markers", hovertemplate="<extra>Forecast</extra><b>Females</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6, line=list(color="pink"), marker=list(color="pink"), name="Females", legendgroup="females")
     }
     
     plt <- plt %>% layout(plt, title="", xaxis=x, yaxis=y)
@@ -112,11 +146,30 @@ function(input, output) {
     )
   })
   
+  ### Single region select ----
+  output$singleCountrySelect <- renderUI({
+    regions <- data %>% select("Country") %>% unique()
+    selectInput(
+      inputId = "singleCountrySelect",
+      label = "Select region:",
+      choices = regions,
+      multiple = F,
+      selected = "Poland"
+    )
+  })
+  
   ## Sidebar render ----
   output$sidebar <- renderUI({
     if (input$panel == "Total view") {
       div(
         uiOutput("countrySelect"),
+        uiOutput("date"),
+        uiOutput("dateButton"),
+        uiOutput("forecastCheckbox")
+      )
+    } else if (input$panel == "Gender view") {
+      div(
+        uiOutput("singleCountrySelect"),
         uiOutput("date"),
         uiOutput("dateButton"),
         uiOutput("forecastCheckbox")

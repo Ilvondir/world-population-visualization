@@ -38,6 +38,11 @@ dashboardPage(
       tabPanel(
         title = "Total view",
         plotlyOutput("totalViewPlot")
+      ),
+      
+      tabPanel(
+        title = "Gender view",
+        plotlyOutput("genderViewPlot")
       )
     )
   )
