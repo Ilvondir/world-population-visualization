@@ -21,3 +21,15 @@
 #sidebarCollapsed section.sidebar div.checkbox span {
   font-weight: 700;
 }
+
+#sidebarCollapsed section.sidebar button {
+  background: #605CA8;
+  border: 0;
+  color: white;
+}
+
+#sidebarCollapsed section.sidebar button:hover {
+  background: #555299;
+  border: 0;
+  color: white;
+}
