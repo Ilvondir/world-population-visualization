@@ -49,10 +49,10 @@ function(input, output) {
     plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year<=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}")
     
     if (input$forecastCheckbox == T) {
-      plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year>2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6)
+      plt <- plt %>% add_trace(data=firstPlotData() %>% filter(Year>=2022), y=~Total, type="scatter", mode="lines+markers", hovertemplate="<extra></extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", showlegend=F, opacity=0.6)
     }
     
-    plt <- plt %>% layout(plt, title=list(text="Population by regions", font = font), xaxis=x, yaxis=y)
+    plt <- plt %>% layout(plt, title="", xaxis=x, yaxis=y)
     
     highlight(plt)
   })
@@ -80,7 +80,8 @@ function(input, output) {
       startview = "year",
       start = as.Date(paste0(minDate,"/01/01/")),
       end = as.Date(paste0(maxDate,"/01/01/")),
-      format = "yyyy"
+      format = "yyyy",
+      separator = " - "
     )
   })
   

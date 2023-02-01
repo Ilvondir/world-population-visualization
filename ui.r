@@ -26,7 +26,8 @@ dashboardPage(
   dashboardBody(
     ### CSS head tag ----
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/style.css"),
+      tags$link(rel="shortcut icon", href = "img/icon.png")
     ),
     
     ### Tabset panel ----
