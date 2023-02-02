@@ -61,7 +61,6 @@ function(input, output) {
   
   ### Age pyramid data ----
   agePyramidData <- reactive({
-    data$Males <- (-1)*data$Males
     plotData <- data %>%
       select(c("Country", "Year", "Group", "Males", "Females")) %>%
       filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
@@ -201,12 +200,59 @@ function(input, output) {
     req(input$singleCountrySelect)
     req(input$singleDate)
     
-    plot <- plot_ly(data=agePyramidData(), y=~Group)
+    yform <- list(
+      categoryorder = "array",
+      categoryarray = ageGroupViewData()[1:21, "Group"],
+      title = "Age group",
+      titlefont = font
+    )
     
-    plot <- plot %>% add_bars(x=~Males)
+    plot1 <- plot_ly(data=agePyramidData(), y=~Group)
     
-    plot <- plot %>% add_bars(x=~Females)
+    plot1 <- plot1 %>% add_bars(x=~Males,
+                                name = "Males",
+                                marker=list(color="steelblue"),
+                                hovertemplate=paste0(
+                                  "<extra></extra>",
+                                  "<b>Males</b>\n",
+                                  "Country: ",
+                                  input$singleCountrySelect,
+                                  "\nYear: ", input$singleDate,
+                                  "\nGroup: %{y}",
+                                  "\nPopulation: %{x}"
+                                ))
     
+    plot1 <- plot1 %>% layout(
+      xaxis=list(
+        autorange = "reversed"),
+      yaxis=list(
+        showticklabels=F,
+        categoryorder = "array",
+        categoryarray = agePyramidData()[1:21, "Group"])
+      )
+    
+    plot2 <- plot_ly(data=agePyramidData(), y=~Group)
+    
+    plot2 <- plot2 %>% add_bars(x=~Females,
+                                name = "Females",
+                                marker=list(color="pink"),
+                                hovertemplate=paste0(
+                                  "<extra></extra>",
+                                  "<b>Females</b>\n",
+                                  "Country: ",
+                                  input$singleCountrySelect,
+                                  "\nYear: ", input$singleDate,
+                                  "\nGroup: %{y}",
+                                  "\nPopulation: %{x}"
+                                ))
+    
+    plot2 <- plot2 %>% layout(yaxis=list(
+      categoryorder = "array",
+      categoryarray = agePyramidData()[1:21, "Group"],
+      tickfont=list(size=9))
+      )
+    
+    plot <- subplot(plot1, plot2)
     
     highlight(plot)
   })
