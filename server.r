@@ -54,8 +54,15 @@ function(input, output) {
   
   ### Age group view data ----
   ageGroupViewData <- reactive({
-    secondPlotData <- data %>%
+    plotData <- data %>%
       select(c("Country", "Year", "Group", "Total")) %>%
+      filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
+  })
+  
+  ### Age pyramid data ----
+  agePyramidData <- reactive({
+    plotData <- data %>%
+      select(c("Country", "Year", "Group", "Males", "Females")) %>%
       filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
   })
   
@@ -68,7 +75,8 @@ function(input, output) {
     plt <- plot_ly(data=totalViewData(), 
                    x=~Year, 
                    color=~Country, 
-                   text=~Country)
+                   text=~Country,
+                   colors="Set2")
     
     plt <- plt %>% add_trace(data=totalViewData() %>% 
                                filter(Year<=2022), 
@@ -81,7 +89,8 @@ function(input, output) {
     if (input$forecastCheckbox == T) {
       plt <- plt %>% add_trace(data=totalViewData() %>%
                                  filter(Year>=2022), 
-                               y=~Total, type="scatter", 
+                               y=~Total, 
+                               type="scatter", 
                                mode="lines+markers", 
                                hovertemplate="<extra>Forecast</extra><b>%{text}</b>\nYear: %{x}\nPopulation: %{y}", 
                                showlegend=F, 
@@ -130,7 +139,8 @@ function(input, output) {
                              y=~Females, 
                              type="scatter",
                              mode="lines+markers", 
-                             hovertemplate="<extra></extra><b>Females</b>\nYear: %{x}\nPopulation: %{y}", name="Females", 
+                             hovertemplate="<extra></extra><b>Females</b>\nYear: %{x}\nPopulation: %{y}", 
+                             name="Females", 
                              line=list(color="pink"), 
                              marker=list(color="pink"), 
                              legendgroup="females")
@@ -184,6 +194,105 @@ function(input, output) {
                             xaxis=xform, 
                             yaxis=y)
       
+    highlight(plot)
+  })
+  
+  ###Age pyramid ----
+  output$agePyramid <- renderPlotly({
+    req(input$singleCountrySelect)
+    req(input$singleDate)
+    
+    plot1 <- plot_ly(data=agePyramidData(), y=~Group)
+    
+    
+    plot1 <- plot1 %>% add_bars(x=~Males,
+                                name = "Males",
+                                marker=list(color="steelblue"),
+                                legendgroup="Males",
+                                hovertemplate=paste0(
+                                  "<extra></extra>",
+                                  "<b>Males</b>\n",
+                                  "Country: ",
+                                  input$singleCountrySelect,
+                                  "\nYear: ", input$singleDate,
+                                  "\nGroup: %{y}",
+                                  "\nPopulation: %{x}"
+                                ))
+    
+    if (input$dataComparisonCheckbox==T) {
+      
+      dateF <- agePyramidData() %>%
+        select(c("Group", "Males", "Females"))
+      
+      dateF$new <- dateF$Females-dateF$Males
+      filter <- dateF$new<0
+      dateF[filter,"new"]<-0
+      
+      plot1 <- plot1 %>% add_bars(data=dateF,
+                                  x=~new,
+                                  y=~Group,
+                                  marker=list(
+                                    color="pink"),
+                                  showlegend=F,
+                                  hoverinfo="none",
+                                  legendgroup="Males",
+                                  opacity=0.6)
+    }
+    
+    plot1 <- plot1 %>% layout(
+      xaxis=list(
+        autorange = "reversed"),
+      yaxis=list(
+        showticklabels=F,
+        categoryorder = "array",
+        categoryarray = agePyramidData()[1:21, "Group"]),
+      barmode="stack"
+      )
+    
+    plot2 <- plot_ly(data=agePyramidData(), y=~Group)
+    
+    plot2 <- plot2 %>% add_bars(x=~Females,
+                                name = "Females",
+                                marker=list(color="pink"),
+                                legendgroup="Females",
+                                hovertemplate=paste0(
+                                  "<extra></extra>",
+                                  "<b>Females</b>\n",
+                                  "Country: ",
+                                  input$singleCountrySelect,
+                                  "\nYear: ", input$singleDate,
+                                  "\nGroup: %{y}",
+                                  "\nPopulation: %{x}"
+                                ))
+    
+    if (input$dataComparisonCheckbox==T) {
+      
+      dateF <- agePyramidData() %>%
+        select(c("Group", "Males", "Females"))
+      
+      dateF$new <- dateF$Males-dateF$Females
+      filter <- dateF$new<0
+      dateF[filter,"new"]<-0
+      
+      plot2 <- plot2 %>% add_bars(data=dateF,
+                                  x=~new,
+                                  y=~Group,
+                                  marker=list(
+                                    color="steelblue"),
+                                  showlegend=F,
+                                  hoverinfo="none",
+                                  opacity=0.6,
+                                  legendgroup="Females")
+    }
+    
+    plot2 <- plot2 %>% layout(yaxis=list(
+      categoryorder = "array",
+      categoryarray = agePyramidData()[1:21, "Group"],
+      tickfont=list(size=9))
+      )
+    
+    plot <- subplot(plot1, plot2)
+    
     highlight(plot)
   })
   
@@ -266,6 +375,15 @@ function(input, output) {
     )
   })
   
+  ### Data comparison checkbox ----
+  output$dataComparisonCheckbox <- renderUI({
+    checkboxInput(
+      inputId = "dataComparisonCheckbox",
+      label = "Show data comparison",
+      value = F
+    )
+  })
+  
   ## Sidebar render ----
   output$sidebar <- renderUI({
     if (input$panel == "Total view") {
@@ -286,6 +404,12 @@ function(input, output) {
       div(
         uiOutput("singleCountrySelect"),
         uiOutput("singleDate")
+      )
+    } else if (input$panel == "Age pyramid") {
+      div(
+        uiOutput("singleCountrySelect"),
+        uiOutput("singleDate"),
+        uiOutput("dataComparisonCheckbox")
       )
     }
   })
