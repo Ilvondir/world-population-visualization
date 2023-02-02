@@ -48,6 +48,11 @@ dashboardPage(
       tabPanel(
         title = "Age group view",
         plotlyOutput("ageGroupPlot")
+      ),
+      
+      tabPanel(
+        title = "Age pyramid",
+        plotlyOutput("agePyramid")
       )
     )
   )

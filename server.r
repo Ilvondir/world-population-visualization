@@ -54,8 +54,16 @@ function(input, output) {
   
   ### Age group view data ----
   ageGroupViewData <- reactive({
-    secondPlotData <- data %>%
+    plotData <- data %>%
       select(c("Country", "Year", "Group", "Total")) %>%
+      filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
+  })
+  
+  ### Age pyramid data ----
+  agePyramidData <- reactive({
+    data$Males <- (-1)*data$Males
+    plotData <- data %>%
+      select(c("Country", "Year", "Group", "Males", "Females")) %>%
       filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
   })
   
@@ -130,7 +138,8 @@ function(input, output) {
                              y=~Females, 
                              type="scatter",
                              mode="lines+markers", 
-                             hovertemplate="<extra></extra><b>Females</b>\nYear: %{x}\nPopulation: %{y}", name="Females", 
+                             hovertemplate="<extra></extra><b>Females</b>\nYear: %{x}\nPopulation: %{y}", 
+                             name="Females", 
                              line=list(color="pink"), 
                              marker=list(color="pink"), 
                              legendgroup="females")
@@ -184,6 +193,21 @@ function(input, output) {
                             xaxis=xform, 
                             yaxis=y)
       
+    highlight(plot)
+  })
+  
+  ###Age pyramid ----
+  output$agePyramid <- renderPlotly({
+    req(input$singleCountrySelect)
+    req(input$singleDate)
+    
+    plot <- plot_ly(data=agePyramidData(), y=~Group)
+    
+    plot <- plot %>% add_bars(x=~Males)
+    
+    plot <- plot %>% add_bars(x=~Females)
+    
+    
     highlight(plot)
   })
   
@@ -283,6 +307,11 @@ function(input, output) {
         uiOutput("forecastCheckbox")
       )
     } else if (input$panel == "Age group view") {
+      div(
+        uiOutput("singleCountrySelect"),
+        uiOutput("singleDate")
+      )
+    } else if (input$panel == "Age pyramid") {
       div(
         uiOutput("singleCountrySelect"),
         uiOutput("singleDate")
