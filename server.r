@@ -56,14 +56,14 @@ function(input, output) {
   ageGroupViewData <- reactive({
     plotData <- data %>%
       select(c("Country", "Year", "Group", "Total")) %>%
-      filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
+      filter(Country %in% input$singleCountrySelect & Year==year())
   })
   
   ### Age pyramid data ----
   agePyramidData <- reactive({
     plotData <- data %>%
       select(c("Country", "Year", "Group", "Males", "Females")) %>%
-      filter(Country %in% input$singleCountrySelect & Year==input$singleDate)
+      filter(Country %in% input$singleCountrySelect & Year==year())
   })
   
   ## Plots ----
@@ -167,7 +167,7 @@ function(input, output) {
   ### Age group plot ----
   output$ageGroupPlot <- renderPlotly({
     req(input$singleCountrySelect)
-    req(input$singleDate)
+    req(year()>=1950 & year()<=2100)
     
     xform <- list(
       categoryorder = "array",
@@ -183,7 +183,7 @@ function(input, output) {
                               hovertemplate=paste0(
                                 input$singleCountrySelect,
                                 "- ",
-                                input$singleDate,
+                                year(),
                                 "\nGroup: %{x}",
                                 "\nPopulation: %{y}",
                                 "<extra></extra>"
@@ -200,7 +200,7 @@ function(input, output) {
   ###Age pyramid ----
   output$agePyramid <- renderPlotly({
     req(input$singleCountrySelect)
-    req(input$singleDate)
+    req(year()>=1950 & year()<=2100)
     
     plot1 <- plot_ly(data=agePyramidData(), y=~Group)
     
@@ -214,7 +214,7 @@ function(input, output) {
                                   "<b>Males</b>\n",
                                   "Country: ",
                                   input$singleCountrySelect,
-                                  "\nYear: ", input$singleDate,
+                                  "\nYear: ", year(),
                                   "\nGroup: %{y}",
                                   "\nPopulation: %{x}"
                                 ))
@@ -260,7 +260,7 @@ function(input, output) {
                                   "<b>Females</b>\n",
                                   "Country: ",
                                   input$singleCountrySelect,
-                                  "\nYear: ", input$singleDate,
+                                  "\nYear: ", year(),
                                   "\nGroup: %{y}",
                                   "\nPopulation: %{x}"
                                 ))
@@ -303,6 +303,12 @@ function(input, output) {
     req(input$date)
     as.numeric(Year(input$date))
   }, ignoreNULL = F)
+  
+  ### Year to single date ----
+  year <- eventReactive(input$singleDateButton, {
+    req(input$singleDate)
+    input$singleDate
+  }, ignoreNULL=F)
   
   ## UI sidebar elements ----
   
@@ -375,12 +381,24 @@ function(input, output) {
     )
   })
   
+  ### Single date button ----
+  output$singleDateButton <- renderUI({
+    actionButton(
+      inputId = "singleDateButton",
+      icon = icon("calendar", lib = "glyphicon"),
+      label = "Update plot"
+    )
+  })
+  
   ### Data comparison checkbox ----
   output$dataComparisonCheckbox <- renderUI({
-    checkboxInput(
-      inputId = "dataComparisonCheckbox",
-      label = "Show data comparison",
-      value = F
+    div(
+      checkboxInput(
+        inputId = "dataComparisonCheckbox",
+        label = "Show data comparison",
+        value = F
+      ),
+      p("This field includes data overlap so that you can clearly see, which gender was dominant in each age group.")
     )
   })
   
@@ -403,12 +421,14 @@ function(input, output) {
     } else if (input$panel == "Age group view") {
       div(
         uiOutput("singleCountrySelect"),
-        uiOutput("singleDate")
+        uiOutput("singleDate"),
+        uiOutput("singleDateButton")
       )
     } else if (input$panel == "Age pyramid") {
       div(
         uiOutput("singleCountrySelect"),
         uiOutput("singleDate"),
+        uiOutput("singleDateButton"),
         uiOutput("dataComparisonCheckbox")
       )
     }
