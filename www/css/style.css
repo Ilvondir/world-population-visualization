@@ -1,3 +1,7 @@
+.main-header span.logo {
+  font-weight: 700;
+}
+
 .tabbable > .nav > li.active > a {
   background-color: #555299;
   border-top-color: #605CA8;
@@ -18,6 +22,14 @@
   font-weight: 500;
 }
 
+#sidebarCollapsed section.sidebar div.form-group {
+  margin-bottom: 0;
+}
+
+#sidebarCollapsed section.sidebar div.checkbox {
+  margin-bottom: 0;
+}
+
 #sidebarCollapsed section.sidebar div.checkbox span {
   font-weight: 700;
 }
@@ -32,4 +44,13 @@
   background: #555299;
   border: 0;
   color: white;
+}
+
+#sidebarCollapsed section.sidebar div p {
+  text-align: justify;
+  margin-top: 0;
+}
+
+#sidebarCollapsed section.sidebar div p span {
+  font-weight: 700;
 }
