@@ -1,3 +1,7 @@
+.main-header span.logo {
+  font-weight: 700;
+}
+
 .tabbable > .nav > li.active > a {
   background-color: #555299;
   border-top-color: #605CA8;
