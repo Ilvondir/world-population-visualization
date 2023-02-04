@@ -2,6 +2,11 @@
   font-weight: 700;
 }
 
+.tabbable > .nav > li > a:hover {
+  background-color: #605CA8;
+  color: white;
+}
+
 .tabbable > .nav > li.active > a {
   background-color: #555299;
   border-top-color: #605CA8;
@@ -53,4 +58,14 @@
 
 #sidebarCollapsed section.sidebar div p span {
   font-weight: 700;
+}
+
+#sidebarCollapsed section.sidebar div.form-group input.form-control {
+  font-size: 14px;
+}
+
+#sidebarCollapsed section.sidebar div.form-group span.input-group-addon {
+  font-size: 14px;
+  padding-bottom: 0;
+  padding-top: 0;
 }
