@@ -20,7 +20,7 @@ For running this program you need:
 
 ## How to run
 
-1. Execute command `git clone https://github.com/Ilvondir/r-world-population-visualization`.
+1. Execute command `git clone https://github.com/Ilvondir/world-population-visualization`.
 2. Open `ui.r` or `server.r` at R/RStudio.
 3. Install all missing packages.
 4. Run app in an external window using the button in the upper right corner of the workspace.
